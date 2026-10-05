@@ -30,7 +30,6 @@ function newDocumentPayload() {
     po_number: "",
     payment_terms: "",
     notes: "",
-    status: "draft",
     freight: "0",
     insurance: "0",
     // The regression: a fresh line item carries null for every optional field,
@@ -216,7 +215,8 @@ console.log("\n--- per-line discount and tax ---");
   check("negative discount amount rejected", negAmount.ok, false);
 
   // Document-level discount/tax are legacy: the form no longer posts them.
-  // Status + incoterm year/place ARE part of the payload now.
+  // Status was deleted from the app: stale callers posting it validate fine
+  // with the key stripped. Incoterm year/place ARE part of the payload.
   const legacy = validateDocumentPayload({
     ...newDocumentPayload(),
     discount: "99",
@@ -230,7 +230,7 @@ console.log("\n--- per-line discount and tax ---");
   check("legacy document tax stripped", "tax" in saved, false);
   check("incoterm year kept", saved.incoterm_year, 2010);
   check("incoterm place kept", saved.incoterm_place, "Dubai");
-  check("status kept", saved.status, "sent");
+  check("stale status stripped", "status" in saved, false);
 }
 
 console.log("\n--- bank-details toggle (hidden input posts 1/0) ---");

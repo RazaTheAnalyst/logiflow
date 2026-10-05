@@ -3,16 +3,14 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRightLeft, Check, Copy, Download, FileText, Loader2, MoreHorizontal, Package, Pencil, Plus, Printer, Trash2 } from "lucide-react";
+import { ArrowRightLeft, Copy, Download, FileText, Loader2, MoreHorizontal, Package, Pencil, Plus, Printer, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { DocKind, ShippingDocumentWithLines } from "@/lib/types";
-import { cloneDocument, convertProformaToCommercial, deleteDocument, updateDocumentStatus } from "@/lib/actions/documents";
-import { DOC_STATUSES } from "@/lib/constants";
+import { cloneDocument, convertProformaToCommercial, deleteDocument } from "@/lib/actions/documents";
 import { computeTotals, formatMoney } from "@/lib/money";
 import { documentsToCsv, downloadCsv } from "@/lib/csv";
 import { formatDate } from "@/lib/format";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -46,12 +44,6 @@ import {
 } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
-
-function statusVariant(status: string): "default" | "secondary" | "outline" {
-  if (status === "paid") return "default";
-  if (status === "sent") return "secondary";
-  return "outline";
-}
 
 export interface KindMeta {
   kind: DocKind;
@@ -100,7 +92,6 @@ function DocumentActions({
   const [isPending, setIsPending] = useState(false);
   const [cloning, setCloning] = useState(false);
   const isProforma = (doc.doc_kind ?? "commercial") === "proforma";
-  const isConverted = (doc as { status?: string }).status === "converted";
 
   async function handleDelete() {
     setIsPending(true);
@@ -142,15 +133,6 @@ function DocumentActions({
     router.refresh();
   }
 
-  async function handleStatus(next: string) {
-    const result = await updateDocumentStatus(doc.id, next);
-    if (result.error) toast.error(result.error);
-    else {
-      toast.success(`${doc.doc_number} → ${next}`);
-      router.refresh();
-    }
-  }
-
   return (
     <>
       <DropdownMenu>
@@ -175,19 +157,12 @@ function DocumentActions({
             {cloning ? <Loader2 className="animate-spin" /> : <Copy />}
             Duplicate
           </DropdownMenuItem>
-          {isProforma && !isConverted && (
+          {isProforma && (
             <DropdownMenuItem onSelect={handleConvert} disabled={converting}>
               {converting ? <Loader2 className="animate-spin" /> : <ArrowRightLeft />}
               Convert to invoice
             </DropdownMenuItem>
           )}
-          <DropdownMenuSeparator />
-          {DOC_STATUSES.map((s) => (
-            <DropdownMenuItem key={s.value} onSelect={() => handleStatus(s.value)}>
-              <Check className={(doc as { status?: string }).status === s.value ? "" : "opacity-0"} />
-              Mark {s.label}
-            </DropdownMenuItem>
-          ))}
           <DropdownMenuSeparator />
           {isProforma ? (
             <DropdownMenuItem asChild>
@@ -280,30 +255,22 @@ const PAGE_SIZE = 25;
 export function DocumentsTable({
   documents,
   meta = KIND_META.commercial,
-  initialStatus = "all",
 }: {
   documents: ShippingDocumentWithLines[];
   meta?: KindMeta;
-  /** Deep-linked status filter (dashboard pipeline segments). */
-  initialStatus?: string;
 }) {
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState(
-    DOC_STATUSES.some((s) => s.value === initialStatus) ? initialStatus : "all",
-  );
   const [page, setPage] = useState(0);
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
-    return documents.filter((doc) => {
-      const st = (doc as { status?: string }).status ?? "draft";
-      if (status !== "all" && st !== status) return false;
-      if (!term) return true;
-      return [doc.doc_number, doc.po_number, doc.customer?.name, doc.vessel]
+    if (!term) return documents;
+    return documents.filter((doc) =>
+      [doc.doc_number, doc.po_number, doc.customer?.name, doc.vessel]
         .filter(Boolean)
-        .some((field) => String(field).toLowerCase().includes(term));
-    });
-  }, [documents, query, status]);
+        .some((field) => String(field).toLowerCase().includes(term)),
+    );
+  }, [documents, query]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
@@ -329,17 +296,6 @@ export function DocumentsTable({
             </CardDescription>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <select
-              value={status}
-              onChange={(e) => { setStatus(e.target.value); setPage(0); }}
-              aria-label="Filter by status"
-              className="h-11 rounded-3xl border border-border bg-transparent px-4 text-sm outline-none"
-            >
-              <option value="all">All statuses</option>
-              {DOC_STATUSES.map((s) => (
-                <option key={s.value} value={s.value}>{s.label}</option>
-              ))}
-            </select>
             <Input
               value={query}
               onChange={(event) => { setQuery(event.target.value); setPage(0); }}
@@ -383,7 +339,6 @@ export function DocumentsTable({
                   <TableRow>
                     <TableHead>Number</TableHead>
                     <TableHead>Customer</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -391,7 +346,6 @@ export function DocumentsTable({
                 </TableHeader>
                 <TableBody>
                   {pageRows.map((doc) => {
-                    const st = (doc as { status?: string }).status ?? "draft";
                     const totals = computeTotals(doc.line_items ?? [], {
                       freight: Number(doc.freight) || 0,
                       insurance: Number(doc.insurance) || 0,
@@ -418,9 +372,6 @@ export function DocumentsTable({
                               {doc.incoterm}
                             </p>
                           )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={statusVariant(st)} className="capitalize">{st}</Badge>
                         </TableCell>
                         <TableCell className="whitespace-nowrap text-right font-medium tabular-nums">
                           {formatMoney(totals.grandTotal, doc.currency)}
@@ -459,11 +410,9 @@ export function DocumentsTable({
 export function DocumentsPageClient({
   documents,
   meta = KIND_META.commercial,
-  initialStatus = "all",
 }: {
   documents: ShippingDocumentWithLines[];
   meta?: KindMeta;
-  initialStatus?: string;
 }) {
   return (
     <div className="mx-auto w-full w-full space-y-6">
@@ -481,7 +430,7 @@ export function DocumentsPageClient({
         }
       />
 
-      <DocumentsTable documents={documents} meta={meta} initialStatus={initialStatus} />
+      <DocumentsTable documents={documents} meta={meta} />
     </div>
   );
 }

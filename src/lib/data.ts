@@ -141,7 +141,6 @@ export interface DocumentListFilters {
   customerId?: string;
   entityId?: string;
   docKind?: DocKind;
-  status?: string;
   search?: string;
   from?: string;
   to?: string;
@@ -177,7 +176,6 @@ export async function getDocumentsPaged(
   if (filters.customerId) query = query.eq("customer_id", filters.customerId);
   if (filters.entityId) query = query.eq("entity_id", filters.entityId);
   if (filters.docKind) query = query.eq("doc_kind", filters.docKind);
-  if (filters.status) query = query.eq("status", filters.status);
   if (filters.from) query = query.gte("issue_date", filters.from);
   if (filters.to) query = query.lte("issue_date", filters.to);
   if (filters.search) {
@@ -309,7 +307,6 @@ export interface DashboardRecentDoc {
   doc_number: string;
   doc_kind?: string | null;
   issue_date: string;
-  status: string | null;
   customer: { name: string } | null;
 }
 
@@ -370,13 +367,10 @@ export interface DashboardStats {
   documentCount: number;
   commercialCount: number;
   proformaCount: number;
-  awaitingConversion: number;
-  pipeline: { draft: number; sent: number; paid: number };
   thisYearCount: number;
   thisMonthValue: number;
   thisMonthCurrency: string;
   topCustomers: { name: string; count: number }[];
-  statusBreakdown: { status: string; count: number }[];
   recent: DashboardRecentDoc[];
   byMonth: { key: string; label: string; count: number }[];
 }
@@ -389,7 +383,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     supabase
       .from("documents")
       .select(
-        "id, doc_number, doc_kind, issue_date, status, currency, freight, insurance, customer:customers(name)",
+        "id, doc_number, doc_kind, issue_date, currency, freight, insurance, customer:customers(name)",
       )
       .order("issue_date", { ascending: false })
       .limit(500),
@@ -422,12 +416,9 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   void thisMonthDocs;
 
   const byCustomer = new Map<string, number>();
-  const byStatus = new Map<string, number>();
   for (const row of rows) {
     const name = row.customer?.name ?? "Unknown";
     byCustomer.set(name, (byCustomer.get(name) ?? 0) + 1);
-    const st = row.status ?? "draft";
-    byStatus.set(st, (byStatus.get(st) ?? 0) + 1);
   }
 
   const byMonth = Array.from({ length: 6 }, (_, i) => {
@@ -449,18 +440,6 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     documentCount: rows.length,
     commercialCount,
     proformaCount,
-    awaitingConversion: rows.filter(
-      (row) => isProforma(row) && (row.status ?? "draft") !== "converted",
-    ).length,
-    pipeline: (["draft", "sent", "paid"] as const).reduce(
-      (acc, status) => ({
-        ...acc,
-        [status]: rows.filter(
-          (row) => !isProforma(row) && (row.status ?? "draft") === status,
-        ).length,
-      }),
-      { draft: 0, sent: 0, paid: 0 },
-    ),
     thisYearCount: currentYearDocs.length,
     thisMonthValue: thisMonthDocs.length,
     thisMonthCurrency: "docs",
@@ -468,10 +447,6 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5),
-    statusBreakdown: [...byStatus.entries()].map(([status, count]) => ({
-      status,
-      count,
-    })),
     recent: rows.slice(0, 6),
     byMonth,
   };

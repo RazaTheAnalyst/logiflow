@@ -34,7 +34,6 @@ function validatedInput(overrides: Record<string, unknown> = {}) {
     issue_date: "2026-09-28",
     customer_id: CUSTOMER_ID,
     currency: "USD",
-    status: "draft",
     incoterm: "FOB",
     incoterm_year: 2020,
     incoterm_place: "",
@@ -82,11 +81,13 @@ console.log("--- document header shaping ---");
   check("freight rounded to 2dp", rounded.freight, 1.01);
   check("insurance rounded to 2dp", rounded.insurance, 2.68);
 
-  const defaulted = buildDocumentHeader(
-    validatedInput({ doc_kind: "", status: "" }),
-  );
+  const defaulted = buildDocumentHeader(validatedInput({ doc_kind: "" }));
   check("blank kind defaults to commercial", defaulted.doc_kind, "commercial");
-  check("blank status defaults to draft", defaulted.status, "draft");
+  check(
+    "header carries no status key",
+    "status" in (defaulted as Record<string, unknown>),
+    false,
+  );
 }
 
 console.log("\n--- line item shaping ---");

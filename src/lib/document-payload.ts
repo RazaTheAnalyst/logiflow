@@ -19,7 +19,6 @@ export function buildDocumentHeader(values: DocumentInput) {
     issue_date: values.issue_date,
     customer_id: values.customer_id,
     currency: values.currency,
-    status: values.status || "draft",
     incoterm: clean(values.incoterm),
     incoterm_year: values.incoterm_year || 2020,
     incoterm_place: clean(values.incoterm_place),

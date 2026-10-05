@@ -150,11 +150,6 @@ create table if not exists public.documents (
   insurance            numeric(18, 2) not null default 0,
   tax                  numeric(18, 2) not null default 0,
   notes                text,
-  -- `status` drives the draft → sent → paid / cancelled workflow surfaced in
-  -- the documents list, filters and dashboard. Proformas turned into
-  -- commercial invoices are marked `converted`.
-  status               text        not null default 'draft'
-    check (status in ('draft', 'sent', 'paid', 'cancelled', 'converted')),
   created_by           uuid,
   updated_by           uuid,
   created_at           timestamptz not null default now(),
@@ -167,7 +162,6 @@ create index if not exists documents_customer_idx on public.documents (customer_
 create index if not exists documents_kind_idx on public.documents (doc_kind, issue_date desc);
 create index if not exists documents_issue_date_idx on public.documents (issue_date desc);
 create index if not exists documents_entity_idx on public.documents (entity_id, issue_date desc);
-create index if not exists documents_status_idx on public.documents (status, issue_date desc);
 
 -- ---------------------------------------------------------------------------
 -- Line items — shared by invoice (qty/price) and packing list (cartons/weight)
@@ -417,7 +411,7 @@ begin
   if p_id is null then
     insert into public.documents (
       entity_id, doc_kind, doc_number, issue_date, customer_id, currency,
-      status, incoterm, incoterm_year, incoterm_place, port_of_loading,
+      incoterm, incoterm_year, incoterm_place, port_of_loading,
       port_of_destination, vessel, po_number, payment_terms,
       include_bank_details, freight, insurance, notes,
       created_by, updated_by
@@ -429,7 +423,6 @@ begin
       (p_header->>'issue_date')::date,
       (p_header->>'customer_id')::uuid,
       coalesce(nullif(p_header->>'currency', ''), 'USD'),
-      coalesce(nullif(p_header->>'status', ''), 'draft'),
       nullif(p_header->>'incoterm', ''),
       (p_header->>'incoterm_year')::integer,
       nullif(p_header->>'incoterm_place', ''),
@@ -453,7 +446,6 @@ begin
       issue_date           = (p_header->>'issue_date')::date,
       customer_id          = (p_header->>'customer_id')::uuid,
       currency             = coalesce(nullif(p_header->>'currency', ''), 'USD'),
-      status               = coalesce(nullif(p_header->>'status', ''), 'draft'),
       incoterm             = nullif(p_header->>'incoterm', ''),
       incoterm_year        = (p_header->>'incoterm_year')::integer,
       incoterm_place       = nullif(p_header->>'incoterm_place', ''),

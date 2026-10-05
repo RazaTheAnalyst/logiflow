@@ -74,18 +74,6 @@ export const PACKAGE_TYPES = [
   "ROLL",
 ] as const;
 
-export const DOC_STATUSES = [
-  { value: "draft", label: "Draft" },
-  { value: "sent", label: "Sent" },
-  { value: "paid", label: "Paid" },
-  { value: "cancelled", label: "Cancelled" },
-  { value: "converted", label: "Converted" },
-] as const;
-
-export type DocStatus = (typeof DOC_STATUSES)[number]["value"];
-
-export const DOC_STATUS_VALUES = DOC_STATUSES.map((s) => s.value);
-
 export const INCOTERM_YEARS = [2020, 2010] as const;
 
 /** Single source of truth for currency symbols — money.ts re-exports this. */

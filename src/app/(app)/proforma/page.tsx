@@ -8,7 +8,6 @@ export default async function ProformaPage({
 }: PageProps<"/proforma">) {
   const params = await searchParams;
   const query = typeof params.search === "string" ? params.search : "";
-  const status = typeof params.status === "string" ? params.status : "all";
 
   const documents = await getDocuments({
     docKind: "proforma",
@@ -19,7 +18,6 @@ export default async function ProformaPage({
     <DocumentsPageClient
       documents={documents}
       meta={KIND_META.proforma}
-      initialStatus={status}
     />
   );
 }

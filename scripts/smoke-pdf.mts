@@ -128,7 +128,6 @@ const doc: ShippingDocumentWithLines = {
   issue_date: "2026-09-24",
   customer_id: "22222222-2222-4222-8222-222222222222",
   currency: "USD",
-  status: "draft",
   incoterm: "FOB",
   incoterm_year: 2020,
   incoterm_place: "Karachi Port",

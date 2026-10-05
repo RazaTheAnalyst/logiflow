@@ -151,28 +151,6 @@ export async function deleteDocument(
   return {};
 }
 
-export async function updateDocumentStatus(
-  id: string,
-  status: string,
-): Promise<{ error?: string }> {
-  const allowed = ["draft", "sent", "paid", "cancelled", "converted"];
-  if (!allowed.includes(status)) return { error: "Invalid status." };
-  const supabase = await createClient();
-  const userId = await requireUserId();
-  if (!userId) return { error: NOT_AUTHENTICATED };
-  const { error } = await supabase
-    .from("documents")
-    .update({ status, updated_by: userId })
-    .eq("id", id);
-  if (error) return { error: error.message };
-  revalidatePath("/documents");
-  revalidatePath("/proforma");
-  revalidatePath("/dashboard");
-  revalidatePath(`/documents/${id}`);
-  revalidatePath(`/proforma/${id}`);
-  return {};
-}
-
 export async function cloneDocument(
   id: string,
 ): Promise<{ error?: string; documentId?: string }> {
@@ -207,7 +185,6 @@ export async function cloneDocument(
       issue_date: new Date().toISOString().slice(0, 10),
       customer_id: doc.customer_id,
       currency: doc.currency,
-      status: "draft",
       incoterm: doc.incoterm,
       incoterm_year: doc.incoterm_year ?? 2020,
       incoterm_place: doc.incoterm_place,
@@ -270,9 +247,8 @@ export async function cloneDocument(
 
 /**
  * Turns an accepted proforma into a commercial invoice: reserves a fresh
- * INV number, deep-copies header + lines as a draft, and marks the source
- * `converted`. Safe to retry — a second call creates another commercial doc,
- * so the UI confirms before invoking.
+ * INV number and deep-copies header + lines as a new document. Creating
+ * twice creates two commercial docs, so the UI confirms before invoking.
  */
 export async function convertProformaToCommercial(
   id: string,
@@ -310,7 +286,6 @@ export async function convertProformaToCommercial(
       issue_date: new Date().toISOString().slice(0, 10),
       customer_id: doc.customer_id,
       currency: doc.currency,
-      status: "draft",
       incoterm: doc.incoterm,
       incoterm_year: doc.incoterm_year ?? 2020,
       incoterm_place: doc.incoterm_place,
@@ -364,11 +339,6 @@ export async function convertProformaToCommercial(
       .insert(payload);
     if (lineError) return { error: lineError.message, documentId: created.id };
   }
-
-  await supabase
-    .from("documents")
-    .update({ status: "converted", updated_by: userId })
-    .eq("id", id);
 
   revalidatePath("/documents");
   revalidatePath("/proforma");

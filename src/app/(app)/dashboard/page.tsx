@@ -1,13 +1,9 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  ArrowRightLeft,
   Building2,
-  Check,
   FileText,
-  Pencil,
   ReceiptText,
-  Send,
   Users,
 } from "lucide-react";
 import { getDashboardStats, getEntities } from "@/lib/data";
@@ -68,27 +64,6 @@ export default async function DashboardPage() {
     },
   ] as const;
 
-  const pipeline = [
-    {
-      label: "Draft",
-      value: stats.pipeline.draft,
-      icon: Pencil,
-      href: "/documents?status=draft",
-    },
-    {
-      label: "Sent",
-      value: stats.pipeline.sent,
-      icon: Send,
-      href: "/documents?status=sent",
-    },
-    {
-      label: "Paid",
-      value: stats.pipeline.paid,
-      icon: Check,
-      href: "/documents?status=paid",
-    },
-  ] as const;
-
   return (
     <div className="w-full space-y-6">
       <PageHeader
@@ -141,43 +116,6 @@ export default async function DashboardPage() {
           </Link>
         ))}
       </div>
-
-      <Card>
-        <CardContent className="flex flex-col gap-2 p-4 sm:flex-row sm:items-stretch">
-          {pipeline.map((stage) => (
-            <Link
-              key={stage.label}
-              href={stage.href}
-              className="group flex flex-1 items-center justify-between gap-3 rounded-2xl px-5 py-4 transition-colors hover:bg-lightgray"
-            >
-              <span className="flex items-center gap-2.5">
-                <stage.icon className="size-4 text-muted-foreground transition-colors group-hover:text-primary" />
-                <span className="text-sm font-medium text-muted-foreground group-hover:text-heading">
-                  {stage.label}
-                </span>
-              </span>
-              <span className="text-xl font-bold tabular-nums text-heading">
-                {stage.value}
-              </span>
-            </Link>
-          ))}
-          <div className="hidden w-px self-stretch bg-border/70 sm:block" aria-hidden />
-          <Link
-            href="/proforma"
-            className="group flex flex-1 items-center justify-between gap-3 rounded-2xl bg-lightprimary px-5 py-4 transition-colors hover:bg-lightprimary/70"
-          >
-            <span className="flex items-center gap-2.5">
-              <ArrowRightLeft className="size-4 text-primary" />
-              <span className="text-sm font-semibold text-heading">
-                Awaiting conversion
-              </span>
-            </span>
-            <span className="text-xl font-bold tabular-nums text-primary">
-              {stats.awaitingConversion}
-            </span>
-          </Link>
-        </CardContent>
-      </Card>
 
       <div className="grid gap-5 xl:grid-cols-3">
         <Card>

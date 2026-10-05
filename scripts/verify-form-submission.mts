@@ -29,7 +29,6 @@ function formDataPayload(overrides: Record<string, string> = {}) {
     customer_id: CUSTOMER_ID,
     currency: "USD",
     incoterm: "FOB",
-    status: "draft",
     freight: "0",
     insurance: "0",
     line_items: JSON.stringify([
@@ -92,24 +91,21 @@ console.log("\n--- a missing dropdown is caught, not silently defaulted ---");
   }
 }
 
-console.log("\n--- status is part of the document ---");
+console.log("\n--- removed fields never reach the saved shape ---");
 {
-  const result = validateDocumentPayload(formDataPayload());
-  check("status defaults to draft", result.data?.status === "draft");
+  // status was deleted from the app: a stale client still posting it must
+  // validate fine with the key stripped, never stored.
+  const result = validateDocumentPayload(formDataPayload({ status: "sent" }));
   check(
-    "status is carried into the saved shape",
-    "status" in (result.data as Record<string, unknown>),
+    "stale status key is stripped",
+    result.ok && !("status" in (result.data as Record<string, unknown>)),
   );
-  const sent = validateDocumentPayload(formDataPayload({ status: "sent" }));
-  check("sent status accepted", sent.data?.status === "sent");
-  const bogus = validateDocumentPayload(formDataPayload({ status: "bogus" }));
-  check("bogus status falls back to draft", bogus.data?.status === "draft");
 }
 
 console.log("\n--- the auto-number flag rides along without breaking validation ---");
 {
   // The form posts doc_number_auto as a plain hidden input so the server can
-  // reserve the number atomically. Like status, it must never reach zod.
+  // reserve the number atomically. Like any unknown key, it must never reach zod.
   const result = validateDocumentPayload(formDataPayload({ doc_number_auto: "1" }));
   check("validates with the flag present", result.ok, JSON.stringify(result.fieldErrors));
   check(

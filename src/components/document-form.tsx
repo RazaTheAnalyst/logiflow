@@ -14,7 +14,7 @@ import {
   Package,
   Save,
 } from "lucide-react";
-import { CURRENCIES, DOC_STATUSES, INCOTERMS } from "@/lib/constants";
+import { CURRENCIES, INCOTERMS } from "@/lib/constants";
 import { saveDocument, type DocumentActionState } from "@/lib/actions/documents";
 import { suggestDocNumber } from "@/lib/actions/numbers";
 import { todayISO } from "@/lib/format";
@@ -154,7 +154,6 @@ export function DocumentForm({
           entities[0]?.default_currency ??
           settings?.default_currency ??
           "USD",
-        status: "draft",
         incoterm: settings?.default_incoterm ?? "FOB",
         incoterm_year: settings?.default_incoterm_year ?? 2020,
         incoterm_place: settings?.default_incoterm_place ?? "",
@@ -567,16 +566,6 @@ export function DocumentForm({
                   />
                 )}
                 <TextField name="po_number" label="PO / Reference" placeholder="PO-2024-118" />
-                <SelectField
-                  name="status"
-                  label="Status"
-                  options={DOC_STATUSES.map((s) => ({
-                    value: s.value,
-                    label: s.label,
-                  }))}
-                  required
-                  description={fieldErrors?.status}
-                />
               </CardContent>
             </Card>
 

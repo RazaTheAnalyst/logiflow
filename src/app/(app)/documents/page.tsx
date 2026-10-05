@@ -8,7 +8,6 @@ export default async function DocumentsPage({
 }: PageProps<"/documents">) {
   const params = await searchParams;
   const query = typeof params.search === "string" ? params.search : "";
-  const status = typeof params.status === "string" ? params.status : "all";
 
   const documents = await getDocuments({
     docKind: "commercial",
@@ -19,7 +18,6 @@ export default async function DocumentsPage({
     <DocumentsPageClient
       documents={documents}
       meta={KIND_META.commercial}
-      initialStatus={status}
     />
   );
 }

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CURRENCY_CODES, DOC_STATUS_VALUES } from "@/lib/constants";
+import { CURRENCY_CODES } from "@/lib/constants";
 
 /**
  * Optional text that tolerates the `null`s PostgREST and the form's JSON
@@ -81,14 +81,6 @@ export const documentSchema = z.object({
     .min(1, "Select a customer")
     .pipe(z.string().uuid("Select a customer")),
   currency: z.enum(CURRENCY_CODES as unknown as [string, ...string[]]),
-  status: z
-    .union([z.string(), z.null(), z.undefined()])
-    .transform((value) =>
-      typeof value === "string" && (DOC_STATUS_VALUES as string[]).includes(value)
-        ? value
-        : "draft",
-    )
-    .pipe(z.string().min(1)),
   incoterm: optionalText,
   incoterm_year: z
     .union([z.number(), z.string(), z.null(), z.undefined()])

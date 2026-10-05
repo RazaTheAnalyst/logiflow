@@ -111,7 +111,6 @@ export interface ShippingDocument {
   issue_date: string;
   customer_id: string;
   currency: string;
-  status: string;
   incoterm: string | null;
   incoterm_year: number | null;
   incoterm_place: string | null;
@@ -157,7 +156,6 @@ export interface DocumentFormValues {
   issue_date: string;
   customer_id: string;
   currency: string;
-  status: string;
   incoterm: string;
   incoterm_year: number;
   incoterm_place: string;

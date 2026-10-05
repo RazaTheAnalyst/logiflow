@@ -28,7 +28,6 @@ export default async function EditDocumentPage({
     issue_date: doc.issue_date,
     customer_id: doc.customer_id,
     currency: doc.currency,
-    status: (doc as { status?: string }).status ?? "draft",
     incoterm: doc.incoterm ?? "none",
     incoterm_year: doc.incoterm_year ?? 2020,
     incoterm_place: doc.incoterm_place ?? "",

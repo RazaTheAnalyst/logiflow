@@ -16,7 +16,6 @@ const FIELD_LABELS: Record<string, string> = {
   po_number: "PO / Reference",
   payment_terms: "Payment terms",
   notes: "Notes",
-  status: "Status",
   freight: "Freight",
   insurance: "Insurance",
   line_items: "Line items",
