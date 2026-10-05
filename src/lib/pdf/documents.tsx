@@ -49,7 +49,7 @@ registerPdfFonts();
 const styles = StyleSheet.create({
   page: {
     paddingTop: 88,
-    paddingBottom: 60,
+    paddingBottom: 68,
     paddingHorizontal: 32,
     fontSize: 8.5,
     color: INK,
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   },
 
   /* Clean meta: two columns, no background. */
-  meta: { flexDirection: "row", gap: 24, marginTop: 6 },
+  meta: { flexDirection: "row", gap: 24, marginTop: 5 },
   metaCol: { flex: 1 },
   metaRow: { flexDirection: "row", marginBottom: 2 },
   metaKey: { width: 88, color: MUTED, fontSize: 7.5 },
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   parties: {
     flexDirection: "row",
     gap: 24,
-    marginTop: 6,
+    marginTop: 5,
     borderTopWidth: 0.5,
     borderTopColor: LINE,
     paddingTop: 8,
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   partyName: { fontFamily: FONT.bold, fontSize: 9, color: HEADING, marginBottom: 2 },
   partyLine: { fontSize: 8, color: INK },
 
-  table: { marginTop: 8 },
+  table: { marginTop: 7 },
   tableHead: {
     flexDirection: "row",
     backgroundColor: PRIMARY,
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   grandLabel: { fontSize: 9, fontFamily: FONT.bold, color: HEADING, letterSpacing: 0.6 },
   grandValue: { fontSize: 13, fontFamily: FONT.bold, color: PRIMARY },
 
-  footnotes: { marginTop: 8, gap: 8 },
+  footnotes: { marginTop: 6, gap: 8 },
   footnoteRow: { flexDirection: "row", gap: 12, marginTop: 8 },
   footnoteCol: { flex: 1, paddingRight: 6 },
   footnoteTitle: {
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
    * its own column (spacers match #/part/desc/qty and L/W/H). */
   summaryRow: {
     flexDirection: "row",
-    marginTop: 10,
+    marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: LINE,
@@ -205,9 +205,8 @@ const styles = StyleSheet.create({
   summaryGapLeft: { width: "50%" },
   summaryGapDims: { width: "16.5%" },
   summaryCellPkg: { width: "8%" },
-  summaryCellWeight: { width: "11%", flexDirection: "row", gap: 4 },
+  summaryCellWeight: { width: "11%" },
   summaryCellCbm: { width: "12.5%" },
-  summaryCellHalf: { flex: 1 },
   summaryValue: {
     fontSize: 10,
     fontFamily: FONT.bold,
@@ -216,10 +215,11 @@ const styles = StyleSheet.create({
   },
   summaryLabel: { fontSize: 7, color: MUTED, marginTop: 1, textAlign: "right" },
 
-  /** Sits just above the letterhead's green rule (fixed elements use `top`). */
+  /* Footer sits fully above the letterhead's green bar (measured: bar top
+   * ≈ 756pt, so both lines end by ~745). Fixed elements use `top`. */
   footerLine1: {
     position: "absolute",
-    top: PAGE_HEIGHT - 50,
+    top: PAGE_HEIGHT - 64,
     left: 32,
     right: 32,
     fontSize: 7,
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   },
   footerLine2: {
     position: "absolute",
-    top: PAGE_HEIGHT - 40,
+    top: PAGE_HEIGHT - 54,
     left: 32,
     right: 140,
     fontSize: 7,
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   },
   footerRight: {
     position: "absolute",
-    top: PAGE_HEIGHT - 40,
+    top: PAGE_HEIGHT - 64,
     left: 140,
     right: 32,
     fontSize: 7,
@@ -758,18 +758,14 @@ function PackingListPage({
           <Text style={styles.summaryLabel}>PACKAGES</Text>
         </View>
         <View style={styles.summaryCellWeight}>
-          <View style={styles.summaryCellHalf}>
-            <Text style={styles.summaryValue}>
-              {formatNumber(totals.netWeightKg, 2)}
-            </Text>
-            <Text style={styles.summaryLabel}>NET KG</Text>
-          </View>
-          <View style={styles.summaryCellHalf}>
-            <Text style={styles.summaryValue}>
-              {formatNumber(totals.grossWeightKg, 2)}
-            </Text>
-            <Text style={styles.summaryLabel}>GROSS KG</Text>
-          </View>
+          <Text style={styles.summaryValue}>
+            {formatNumber(totals.netWeightKg, 2)}
+          </Text>
+          <Text style={styles.summaryLabel}>NET KG</Text>
+          <Text style={[styles.summaryValue, { marginTop: 6 }]}>
+            {formatNumber(totals.grossWeightKg, 2)}
+          </Text>
+          <Text style={styles.summaryLabel}>GROSS KG</Text>
         </View>
         <View style={styles.summaryGapDims} />
         <View style={styles.summaryCellCbm}>

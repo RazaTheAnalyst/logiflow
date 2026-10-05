@@ -96,7 +96,7 @@ function textRuns(stream) {
 function footerZoneCount(buffer, raw) {
   return textStreams(buffer, raw)
     .flatMap(textRuns)
-    .filter((run) => run.fromTop >= 735 && run.fromTop <= PAGE_HEIGHT).length;
+    .filter((run) => run.fromTop >= 720 && run.fromTop <= PAGE_HEIGHT).length;
 }
 
 // Invoice table geometry in device points (mirrors the `cols` object in
