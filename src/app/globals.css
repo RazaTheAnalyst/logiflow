@@ -1,0 +1,147 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------------ *
+ * MaterialM palette
+ *
+ * A soft blue primary (#5d87ff) on a near-white blue-grey canvas, with
+ * navy headings and slate body copy. Everything interactive is a pill,
+ * which is what gives this style its rounded, light character.
+ * ------------------------------------------------------------------ */
+@theme inline {
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--error);
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--lightprimary);
+  --color-background: var(--background);
+  --color-foreground: var(--link);
+  --color-card: var(--sidebar);
+  --color-card-foreground: var(--link);
+  --color-popover: var(--sidebar);
+  --color-popover-foreground: var(--link);
+  --color-canvas: var(--lightgray);
+  --color-lightgray: var(--lightgray);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--link);
+  --color-sidebar-accent: var(--lightprimary);
+  --color-sidebar-accent-foreground: var(--primary);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-primary-foreground: #ffffff;
+  --color-sidebar-border: var(--border);
+  --color-sidebar-ring: var(--lightprimary);
+
+  /* Brand accents */
+  --color-lightprimary: var(--lightprimary);
+  --color-gold: var(--gold);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-error: var(--error);
+  --color-heading: var(--dark);
+  --color-link: var(--link);
+  --color-darkgray: var(--darkgray);
+
+  --color-chart-1: #5d87ff;
+  --color-chart-2: #00ceb6;
+  --color-chart-3: #ffb900;
+  --color-chart-4: #46caeb;
+  --color-chart-5: #ff6692;
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-inter);
+  --font-heading: var(--font-inter);
+
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.7);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.3);
+  --radius-2xl: calc(var(--radius) * 1.7);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.8);
+}
+
+:root {
+  --primary: #5d87ff;
+  --primary-foreground: #ffffff;
+  --lightprimary: #eff4fa;
+
+  --lightgray: #f2f5fa;
+  --dark: #111c2d;
+  --darkgray: #1a2537;
+  --link: #2a3547;
+  --border: #e5e5e5;
+
+  --secondary: #f5f5f5;
+  --secondary-foreground: #2a3547;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --accent: #eff4fa;
+  --accent-foreground: #2a3547;
+
+  /* Cool-gray app canvas; cards stay white, panels use --lightgray. */
+  --background: #eef1f6;
+  --foreground: #2a3547;
+  --sidebar: #ffffff;
+
+  --success: #00ceb6;
+  --warning: #ffb900;
+  --error: #ff6692;
+  --info: #46caeb;
+  --gold: #8a6000;
+
+  --radius: 0.75rem;
+}
+
+.dark {
+  --primary: #5d87ff;
+  --primary-foreground: #ffffff;
+  --lightprimary: #1a2537;
+
+  --lightgray: #111c2d;
+  --dark: #f8fafd;
+  --darkgray: #1a2537;
+  --link: #c7cfdb;
+  --border: #2a3547;
+
+  --secondary: #1a2537;
+  --secondary-foreground: #f8fafd;
+  --muted: #1a2537;
+  --muted-foreground: #8f9bad;
+  --accent: #1a2537;
+  --accent-foreground: #f8fafd;
+
+  --background: #111c2d;
+  --foreground: #c7cfdb;
+  --sidebar: #1a2537;
+  --gold: #ffcf5c;
+
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
